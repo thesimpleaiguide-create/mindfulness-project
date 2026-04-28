@@ -1,156 +1,193 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { VolumeX, Play, RotateCcw, AlertCircle } from 'lucide-react';
-
-const App = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [hasFinished, setHasFinished] = useState(false);
-  const [audioError, setAudioError] = useState(null);
-  const audioRef = useRef(null);
-
-  // Updated with the details from your GitHub screenshot
-  const IMAGE_URL = "https://raw.githubusercontent.com/thesimpleaiguide-create/mindfulness-project/main/Human_head_profile_line_art_202604282010.jpg";
-  
-  // Note: Spaces in filenames on GitHub URLs usually need to be replaced with %20
-  const AUDIO_URL = "https://raw.githubusercontent.com/thesimpleaiguide-create/mindfulness-project/main/cannot%20say%20audiomp4.wav"; 
-
-  const toggleAudio = () => {
-    if (!audioRef.current) return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindfulness Project</title>
+    <!-- Montserrat Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and Babel CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     
-    setAudioError(null);
+    <style>
+        body {
+            background-color: black;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+        }
+        .text-shadow-glow {
+            text-shadow: 0 0 20px rgba(96, 165, 250, 0.6);
+        }
+        .boundaries-glow {
+            text-shadow: 0 0 30px rgba(96, 165, 250, 1);
+        }
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.25; transform: scale(1.1); }
+        }
+        .animate-glow-pulse {
+            animation: subtle-pulse 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      if (hasFinished) setHasFinished(false);
-      
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch(error => {
-            console.error("Playback failed:", error);
-            setAudioError("Audio source could not be loaded. Ensure the file is public on GitHub.");
-            setIsPlaying(false);
-          });
-      }
-    }
-  };
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
 
-  const handleAudioEnd = () => {
-    setIsPlaying(false);
-    setHasFinished(true);
-  };
+        const App = () => {
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [hasFinished, setHasFinished] = useState(false);
+            const [audioError, setAudioError] = useState(null);
+            const audioRef = useRef(null);
 
-  return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 selection:bg-blue-500/30" 
-         style={{ fontFamily: "'Montserrat', sans-serif" }}>
-      
-      <style>
-        {`@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
-          .text-shadow-glow { text-shadow: 0 0 15px rgba(96, 165, 250, 0.4); }
-        `}
-      </style>
+            // Asset URLs from your GitHub repo
+            const IMAGE_URL = "https://raw.githubusercontent.com/thesimpleaiguide-create/mindfulness-project/main/Human_head_profile_line_art_202604282010.jpg";
+            const AUDIO_URL = "https://raw.githubusercontent.com/thesimpleaiguide-create/mindfulness-project/main/cannot%20say%20audiomp4.wav";
 
-      {/* Header Section */}
-      <div className="max-w-3xl w-full text-center mb-10 h-40 flex flex-col justify-center">
-        {!hasFinished ? (
-          <p className="text-lg md:text-xl font-light tracking-wide px-4 leading-relaxed italic opacity-90 animate-in fade-in duration-1000">
-            "In the chaos of a busy day, it is easy to lose sight of what is actually in your hands"
-          </p>
-        ) : (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-3">
-            <h2 className="text-2xl md:text-4xl font-semibold tracking-tight text-blue-400 text-shadow-glow">What I Can Control.</h2>
-            <p className="text-sm font-medium opacity-60 uppercase tracking-[0.4em]">Inside the Head (The Internal)</p>
-            <p className="text-base md:text-lg font-light max-w-2xl mx-auto px-4 leading-relaxed">
-              My boundaries — <span className="italic opacity-90">"Deciding what behaviour I will and will not accept, and feeling confident holding that line."</span>
-            </p>
-          </div>
-        )}
-      </div>
+            const toggleAudio = () => {
+                if (!audioRef.current) return;
+                setAudioError(null);
 
-      {/* Main Interactive Canvas */}
-      <div className="relative w-full max-w-3xl aspect-[16/9] bg-[#0a111e] rounded-2xl overflow-hidden shadow-2xl border border-white/5 flex items-center justify-center group cursor-pointer"
-           onClick={toggleAudio}>
-        
-        <div className={`absolute inset-0 bg-blue-500/10 blur-3xl transition-opacity duration-1000 ${isPlaying ? 'opacity-100 animate-pulse' : 'opacity-0'}`} />
+                if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                } else {
+                    if (hasFinished) setHasFinished(false);
+                    
+                    const playPromise = audioRef.current.play();
+                    if (playPromise !== undefined) {
+                        playPromise
+                            .then(() => setIsPlaying(true))
+                            .catch(err => {
+                                console.error("Playback error:", err);
+                                setAudioError("Tap again to play (Browser interaction required).");
+                                setIsPlaying(false);
+                            });
+                    }
+                }
+            };
 
-        <div className="relative w-4/5 h-4/5 flex items-center justify-center z-10">
-          <img 
-            src={IMAGE_URL}
-            alt="Mindfulness Profile"
-            className={`w-full h-full object-contain transition-all duration-1000 ease-in-out 
-              ${isPlaying ? 'scale-105 brightness-110' : 'scale-100 opacity-80'}
-              ${hasFinished ? 'brightness-125 opacity-100' : ''}`}
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'block';
-            }}
-          />
-          
-          <div className="hidden text-white/20 text-xs text-center p-4 border border-dashed border-white/10 rounded-lg">
-            Image loading... Check if URL is correct.
-          </div>
-          
-          {audioError && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm z-30 p-6 text-center animate-in fade-in">
-              <AlertCircle size={40} className="text-red-400 mb-3" />
-              <p className="text-sm font-medium text-red-100 mb-1">{audioError}</p>
-            </div>
-          )}
-          
-          {hasFinished && !audioError && (
-            <div className="absolute inset-0 flex items-center justify-center z-20 animate-in fade-in zoom-in duration-1000">
-              <span className="text-white text-xl md:text-4xl font-semibold tracking-[0.25em] text-center px-4 drop-shadow-[0_0_25px_rgba(96,165,250,1)] uppercase">
-                My Boundaries
-              </span>
-            </div>
-          )}
-          
-          {!hasFinished && !isPlaying && !audioError && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="bg-white/10 backdrop-blur-md p-6 rounded-full border border-white/20 shadow-xl">
-                <Play size={44} className="text-white fill-white ml-1" />
-              </div>
-            </div>
-          )}
-        </div>
+            const handleAudioEnd = () => {
+                setIsPlaying(false);
+                setHasFinished(true);
+            };
 
-        <audio 
-          ref={audioRef} 
-          src={AUDIO_URL} 
-          onEnded={handleAudioEnd}
-          onError={() => setAudioError("Audio source could not be loaded.")}
-          crossOrigin="anonymous"
-          className="hidden"
-        />
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-4">
+                    {/* Header Text Section */}
+                    <div className="max-w-3xl w-full text-center mb-10 h-44 flex flex-col justify-center transition-all duration-1000">
+                        {!hasFinished ? (
+                            <p className="text-lg md:text-xl font-light tracking-wide px-4 leading-relaxed italic opacity-80 transition-opacity duration-1000">
+                                "In the chaos of a busy day, it is easy to lose sight of what is actually in your hands"
+                            </p>
+                        ) : (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-4">
+                                <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-blue-400 text-shadow-glow">What I Can Control.</h2>
+                                <p className="text-xs font-medium opacity-50 uppercase tracking-[0.5em]">Inside the Head (The Internal)</p>
+                                <p className="text-base md:text-lg font-light max-w-2xl mx-auto px-6 leading-relaxed opacity-90">
+                                    My boundaries — <span className="italic">"Deciding what behaviour I will and will not accept, and feeling confident holding that line."</span>
+                                </p>
+                            </div>
+                        )}
+                    </div>
 
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center px-8 z-20">
-          <div className="flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-white/40">
-            {isPlaying ? (
-              <div className="flex items-center gap-3 text-blue-400">
-                <div className="flex gap-1 h-3 items-end">
-                  <div className="w-0.5 bg-blue-400 animate-[bounce_1s_infinite_ease-in-out]"></div>
-                  <div className="w-0.5 bg-blue-400 animate-[bounce_1.2s_infinite_ease-in-out_0.2s]"></div>
-                  <div className="w-0.5 bg-blue-400 animate-[bounce_0.8s_infinite_ease-in-out_0.4s]"></div>
+                    {/* Interactive Head Container */}
+                    <div 
+                        className="relative w-full max-w-3xl aspect-[16/9] bg-[#0a111e] rounded-3xl overflow-hidden shadow-2xl border border-white/5 flex items-center justify-center group cursor-pointer"
+                        onClick={toggleAudio}
+                    >
+                        {/* Playback Background Effects */}
+                        <div className={`absolute inset-0 bg-blue-500/10 transition-opacity duration-1000 ${isPlaying ? 'opacity-100' : 'opacity-0'}`} />
+                        <div className={`absolute w-1/2 h-1/2 bg-blue-400/20 blur-[120px] rounded-full animate-glow-pulse ${isPlaying ? 'block' : 'hidden'}`} />
+
+                        <div className="relative w-4/5 h-4/5 flex items-center justify-center z-10">
+                            {/* Profile Image */}
+                            <img 
+                                src={IMAGE_URL}
+                                alt="Mindfulness Profile"
+                                className={`w-full h-full object-contain transition-all duration-1000 ease-in-out 
+                                    ${isPlaying ? 'scale-105 brightness-110' : 'scale-100 opacity-70'}
+                                    ${hasFinished ? 'brightness-125 opacity-100' : ''}`}
+                            />
+                            
+                            {/* Glowing "My Boundaries" Text */}
+                            {hasFinished && (
+                                <div className="absolute inset-0 flex items-center justify-center z-20 transition-all duration-1000">
+                                    <span className="text-white text-2xl md:text-5xl font-semibold tracking-[0.2em] text-center px-4 boundaries-glow uppercase">
+                                        My Boundaries
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Play Icon Hint (Initial) */}
+                            {!isPlaying && !hasFinished && (
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div className="bg-white/10 backdrop-blur-md p-6 rounded-full border border-white/20 shadow-2xl">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2">
+                                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                        </svg>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Status Label Bar */}
+                        <div className="absolute bottom-8 left-0 right-0 flex justify-center items-center z-20">
+                            <div className="text-[10px] tracking-[0.4em] uppercase text-white/30 flex items-center gap-3">
+                                {isPlaying ? (
+                                    <span className="text-blue-400 font-semibold flex items-center gap-2">
+                                        <span className="flex gap-1">
+                                            <span className="w-1 h-1 bg-blue-400 rounded-full animate-ping"></span>
+                                            <span className="w-1 h-1 bg-blue-400 rounded-full animate-ping [animation-delay:200ms]"></span>
+                                            <span className="w-1 h-1 bg-blue-400 rounded-full animate-ping [animation-delay:400ms]"></span>
+                                        </span>
+                                        Listening
+                                    </span>
+                                ) : hasFinished ? (
+                                    <span className="flex items-center gap-2 hover:text-white transition-colors">
+                                        Restart Exercise
+                                    </span>
+                                ) : (
+                                    <span className="group-hover:text-white transition-colors">Tap the profile to begin</span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Error Message */}
+                        {audioError && (
+                            <div className="absolute bottom-16 bg-red-500/80 text-white text-[10px] px-4 py-1 rounded-full backdrop-blur-sm z-30">
+                                {audioError}
+                            </div>
+                        )}
+                    </div>
+
+                    <audio 
+                        ref={audioRef} 
+                        src={AUDIO_URL} 
+                        onEnded={handleAudioEnd}
+                        preload="auto"
+                        className="hidden"
+                    />
+
+                    <div className="mt-12 opacity-20 text-[10px] tracking-[0.5em] font-medium uppercase">
+                        Internal Ownership Exercise
+                    </div>
                 </div>
-                <span className="font-semibold">Listening</span>
-              </div>
-            ) : hasFinished ? (
-              <span className="flex items-center gap-2 text-blue-400/80 hover:text-blue-400 transition-colors cursor-pointer font-medium">
-                <RotateCcw size={12} /> Restart
-              </span>
-            ) : (
-              <span className="group-hover:text-white transition-colors">Tap to listen</span>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+            );
+        };
 
-export default App;
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
