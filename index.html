@@ -24,16 +24,29 @@
         .text-shadow-glow {
             text-shadow: 0 0 20px rgba(96, 165, 250, 0.6);
         }
-        /* Refined Glow for smaller text */
+        /* Orange Glow for Internal text */
         .boundaries-glow {
+            color: #fb923c; /* Tailwind orange-400 */
             text-shadow: 
-                0 0 8px rgba(255, 255, 255, 0.9),
-                0 0 15px rgba(96, 165, 250, 1),
-                0 0 30px rgba(96, 165, 250, 0.8),
-                0 0 50px rgba(96, 165, 250, 0.4);
+                0 0 8px rgba(251, 146, 60, 0.9),
+                0 0 20px rgba(251, 146, 60, 0.6),
+                0 0 40px rgba(251, 146, 60, 0.3);
             animation: text-pulse 4s infinite ease-in-out;
         }
+        /* Light Blue Glow for External text */
+        .external-glow {
+            color: #60a5fa; /* Tailwind blue-400 */
+            text-shadow: 
+                0 0 8px rgba(96, 165, 250, 0.9),
+                0 0 20px rgba(96, 165, 250, 0.6),
+                0 0 40px rgba(96, 165, 250, 0.3);
+            animation: text-pulse-blue 4s infinite ease-in-out;
+        }
         @keyframes text-pulse {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+        @keyframes text-pulse-blue {
             0%, 100% { opacity: 0.85; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.02); }
         }
@@ -60,7 +73,14 @@
             { type: 'internal', title: "What I give\nmy energy to", desc: '"Recognising where you are spending yourself — and whether it is worth it."' },
             { type: 'internal', title: "How I handle\nchallenges", desc: '"Responding with intention rather than reacting on instinct."' },
             { type: 'internal', title: "How I speak\nto myself", desc: '"The voice in your head matters. Making sure it is on your side."' },
-            { type: 'conclusion' }
+            { type: 'conclusion-internal' },
+            { type: 'external', title: "The outcome of\nmy efforts", desc: '"You can do everything right and still not get the result you hoped for. Your job is to bring your best. The outcome is not always yours to determine."' },
+            { type: 'external', title: "How others take\ncare of themselves", desc: '"You can signpost, support and encourage. But you cannot want someone\'s wellbeing more than they do. That boundary is not unkind — it is necessary."' },
+            { type: 'external', title: "What other people\nthink of me", desc: '"You will never be able to control someone else\'s perception of you. Do your job with integrity and let that be enough."' },
+            { type: 'external', title: "What happens\naround me", desc: '"The waiting room. The phones. The demands of the day. The environment will always be what it is. Your response to it is where your power lives."' },
+            { type: 'external', title: "The past and\nthe future", desc: '"The past is done and the future has not arrived yet. Energy spent in either direction is energy taken away from the only moment you can actually act in — right now."' },
+            { type: 'external', title: "The actions and\nopinions of others", desc: '"You can influence people but you cannot control them. What someone decides to think, say or do is ultimately theirs — not yours to carry."' },
+            { type: 'conclusion-external' }
         ];
 
         const App = () => {
@@ -74,14 +94,14 @@
             const USER = "thesimpleaiguide-create";
             const REPO = "mindfulness-project"; 
             
-            const IMAGE_URL = `https://raw.githubusercontent.com/${USER}/${REPO}/main/human_head.jpeg`;
-            const AUDIO_URL = `https://raw.githubusercontent.com/${USER}/${REPO}/main/cannot%20say%20audiomp4.wav`;
+            // Switch to GitHub Pages (.github.io) links. 
+            // These properly support audio streaming across all devices and browsers.
+            const IMAGE_URL = `https://${USER}.github.io/${REPO}/human_head.jpeg`;
+            const AUDIO_URL = `https://${USER}.github.io/${REPO}/cannot%20say%20audiomp4.wav`;
 
             const toggleAudio = () => {
-                // Removed the !imageLoaded restriction so audio always plays
                 if (!audioRef.current) return;
                 
-                // If we are already past the audio step, clicking the canvas restarts the experience
                 if (currentStep > 0) {
                     setCurrentStep(0);
                     if (audioRef.current) {
@@ -100,10 +120,6 @@
                     audioRef.current.pause();
                     setIsPlaying(false);
                 } else {
-                    // Force load if the browser hasn't buffered it yet
-                    if (audioRef.current.readyState === 0) {
-                        audioRef.current.load();
-                    }
                     const playPromise = audioRef.current.play();
                     if (playPromise !== undefined) {
                         playPromise
@@ -119,19 +135,16 @@
 
             const handleAudioEnd = () => {
                 setIsPlaying(false);
-                setCurrentStep(1); // Move to the first "internal" step
+                setCurrentStep(1);
             };
 
             const handleNext = (e) => {
                 if (e) e.stopPropagation(); 
-                
-                // If skipping audio, make sure it stops playing
                 if (currentStep === 0 && audioRef.current) {
                     audioRef.current.pause();
                     audioRef.current.currentTime = 0;
                     setIsPlaying(false);
                 }
-                
                 setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
             };
 
@@ -148,61 +161,71 @@
             return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-4 select-none">
                     {/* Header Text Section */}
-                    <div className="max-w-4xl w-full text-center mb-4 min-h-[140px] flex flex-col justify-end pb-4">
-                        {currentStep === 0 ? (
+                    <div className="max-w-4xl w-full text-center mb-2 min-h-[130px] flex flex-col justify-end pb-2">
+                        {steps[currentStep].type === 'audio' ? (
                             <p className="text-lg md:text-xl font-light tracking-wide px-4 leading-relaxed italic opacity-80 animate-in fade-in duration-1000">
                                 "In the chaos of a busy day, it is easy to lose sight of what is actually in your hands"
                             </p>
-                        ) : currentStep < steps.length - 1 ? (
-                            <div key={`header-${currentStep}`} className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-4">
+                        ) : steps[currentStep].type === 'internal' ? (
+                            <div key={`header-internal-${currentStep}`} className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-3">
                                 <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-blue-400 text-shadow-glow">What I Can Control.</h2>
                                 <p className="text-xs font-medium opacity-50 uppercase tracking-[0.5em]">Inside the Head (The Internal)</p>
                                 <p className="text-base md:text-lg font-light max-w-2xl mx-auto px-6 leading-relaxed opacity-90">
                                     {steps[currentStep].title.replace('\n', ' ')} — <span className="italic">{steps[currentStep].desc}</span>
                                 </p>
                             </div>
-                        ) : (
+                        ) : steps[currentStep].type === 'conclusion-internal' ? (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-4">
                                 <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-blue-400 text-shadow-glow">My Power.</h2>
                                 <p className="text-xs font-medium opacity-50 uppercase tracking-[0.5em]">The Conclusion</p>
                             </div>
-                        )}
+                        ) : steps[currentStep].type === 'external' ? (
+                            <div key={`header-external-${currentStep}`} className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-4">
+                                <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-white/90 text-shadow-glow">What I Cannot Control.</h2>
+                                <p className="text-xs font-medium opacity-50 uppercase tracking-[0.5em]">Outside the Head (The External)</p>
+                                <p className="text-base md:text-lg font-light max-w-2xl mx-auto px-6 leading-relaxed opacity-90">
+                                    {steps[currentStep].title.replace('\n', ' ')} — <span className="italic">{steps[currentStep].desc}</span>
+                                </p>
+                            </div>
+                        ) : steps[currentStep].type === 'conclusion-external' ? (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 space-y-4">
+                                <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-blue-400 text-shadow-glow">Letting Go.</h2>
+                                <p className="text-xs font-medium opacity-50 uppercase tracking-[0.5em]">The Final Conclusion</p>
+                            </div>
+                        ) : null}
                     </div>
 
                     {/* Interactive Head Container */}
                     <div 
-                        className="relative w-full max-w-3xl aspect-[16/9] bg-[#1c2e4a] rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex items-center justify-center group cursor-pointer"
+                        className="relative w-full max-w-4xl aspect-[16/9] bg-[#1c2e4a] rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex items-center justify-center group cursor-pointer"
                         onClick={toggleAudio}
                     >
-                        {/* Playback Background Effects */}
                         <div className={`absolute inset-0 bg-blue-500/10 transition-opacity duration-1000 ${isPlaying ? 'opacity-100' : 'opacity-0'}`} />
                         <div className={`absolute w-1/3 h-1/2 bg-blue-400/20 blur-[100px] rounded-full animate-glow-pulse left-1/3 top-1/4 ${isPlaying ? 'block' : 'hidden'}`} />
 
-                        <div className="relative w-[95%] h-[95%] flex items-center justify-center z-10">
-                            {/* Loading State */}
+                        <div className="relative w-full h-full flex items-center justify-center z-10">
                             {!imageLoaded && !imageError && (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <div className="w-8 h-8 border-2 border-white/10 border-t-blue-400 rounded-full animate-spin"></div>
                                 </div>
                             )}
 
-                            {/* Profile Image */}
                             <img 
                                 src={IMAGE_URL}
                                 alt="Mindfulness Profile"
                                 className={`w-full h-full object-contain transition-all duration-1000 ease-in-out 
                                     ${isPlaying ? 'scale-105 brightness-110' : 'scale-100 opacity-70'}
-                                    ${currentStep > 0 && currentStep < steps.length - 1 ? 'brightness-125 opacity-100' : ''}
-                                    ${currentStep === steps.length - 1 ? 'opacity-10 blur-sm scale-110' : ''}
+                                    ${['internal', 'external'].includes(steps[currentStep].type) ? 'brightness-125 opacity-100' : ''}
+                                    ${steps[currentStep].type.includes('conclusion') ? 'opacity-10 blur-sm scale-110' : ''}
                                     ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                                 onLoad={() => setImageLoaded(true)}
                                 onError={() => setImageError(true)}
                             />
                             
-                            {/* Silhouette Internal Text */}
-                            {currentStep > 0 && currentStep < steps.length - 1 && (
+                            {/* Orange Internal Text */}
+                            {steps[currentStep].type === 'internal' && (
                                 <div key={`inner-${currentStep}`} className="absolute inset-0 flex flex-col items-center justify-center pb-[5%] z-20 animate-in fade-in zoom-in duration-1000">
-                                    <span className="text-white text-sm md:text-lg lg:text-xl font-medium tracking-[0.12em] text-center max-w-[38%] boundaries-glow italic leading-snug">
+                                    <span className="text-sm md:text-lg lg:text-xl font-medium tracking-[0.12em] text-center max-w-[28%] boundaries-glow italic leading-snug">
                                         {steps[currentStep].title.split('\n').map((line, index) => (
                                             <span key={index} className="block">{line}</span>
                                         ))}
@@ -210,8 +233,19 @@
                                 </div>
                             )}
 
-                            {/* Conclusion Text Overlay */}
-                            {currentStep === steps.length - 1 && (
+                            {/* Light Blue External Text (Safely Outside Head) */}
+                            {steps[currentStep].type === 'external' && (
+                                <div key={`external-${currentStep}`} className="absolute right-[4%] md:right-[6%] top-[38%] -translate-y-1/2 z-20 animate-in fade-in duration-1000 text-right">
+                                    <span className="text-sm md:text-base lg:text-lg font-medium tracking-[0.1em] text-right max-w-[150px] md:max-w-[200px] italic leading-snug block external-glow">
+                                        {steps[currentStep].title.split('\n').map((line, index) => (
+                                            <span key={index} className="block">{line}</span>
+                                        ))}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Internal Conclusion Overlay */}
+                            {steps[currentStep].type === 'conclusion-internal' && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-16 z-20 animate-in fade-in zoom-in duration-1000">
                                     <p className="text-sm md:text-lg lg:text-xl font-light leading-relaxed text-center text-white/90">
                                         "That is it. That is all you can control. It might feel small in the middle of a chaotic day — but everything inside that circle is completely yours. Your thoughts. Your boundaries. Your responses. Nobody else owns them. Neither does the chaos. And that means nobody else is responsible for them either. They are yours to own, yours to develop and yours to answer for. That is not a burden.<br/><br/><span className="font-medium text-blue-400 text-shadow-glow">That is your power.</span>"
@@ -219,7 +253,15 @@
                                 </div>
                             )}
 
-                            {/* Play Icon Hint */}
+                            {/* External Final Conclusion Overlay */}
+                            {steps[currentStep].type === 'conclusion-external' && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-16 z-20 animate-in fade-in zoom-in duration-1000">
+                                    <p className="text-sm md:text-lg lg:text-xl font-light leading-relaxed text-center text-white/90">
+                                        "Think of these as raindrops on a waterproof jacket. They land, they run down and they are gone. None of them belong to you. Not your responsibility. Not your accountability. Not yours to fix or carry or lose sleep over.<br/><br/><span className="font-medium text-blue-400 text-shadow-glow">The moment you stop trying to absorb them, guess what? You get your energy back.</span>"
+                                    </p>
+                                </div>
+                            )}
+
                             {currentStep === 0 && !isPlaying && imageLoaded && (
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                     <div className="bg-white/10 backdrop-blur-md p-6 rounded-full border border-white/20 shadow-2xl">
@@ -255,7 +297,6 @@
                             </div>
                         </div>
 
-                        {/* Next / Skip Button Logic */}
                         {imageLoaded && currentStep < steps.length - 1 && (
                             <button 
                                 onClick={handleNext}
@@ -268,7 +309,6 @@
                             </button>
                         )}
 
-                        {/* Audio Error Message */}
                         {audioError && (
                             <div className="absolute bottom-16 bg-red-500/90 text-white text-[10px] px-6 py-2 rounded-full backdrop-blur-sm z-40 text-center shadow-lg">
                                 {audioError}
@@ -276,18 +316,20 @@
                         )}
                     </div>
 
+                    <div className="mt-10 opacity-20 text-[10px] tracking-[0.5em] font-medium uppercase">
+                        Internal Ownership Exercise
+                    </div>
+
+                    {/* The Audio Element -> PlaysInline added for iOS */}
                     <audio 
                         ref={audioRef} 
                         src={AUDIO_URL} 
                         onEnded={handleAudioEnd}
                         preload="auto"
                         playsInline
+                        crossOrigin="anonymous"
                         className="hidden"
                     />
-
-                    <div className="mt-12 opacity-20 text-[10px] tracking-[0.5em] font-medium uppercase">
-                        Internal Ownership Exercise
-                    </div>
                 </div>
             );
         };
