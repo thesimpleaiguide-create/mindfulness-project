@@ -148,7 +148,7 @@
             return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-4 select-none">
                     {/* Header Text Section */}
-                    <div className="max-w-4xl w-full text-center mb-10 h-44 flex flex-col justify-center">
+                    <div className="max-w-4xl w-full text-center mb-4 min-h-[140px] flex flex-col justify-end pb-4">
                         {currentStep === 0 ? (
                             <p className="text-lg md:text-xl font-light tracking-wide px-4 leading-relaxed italic opacity-80 animate-in fade-in duration-1000">
                                 "In the chaos of a busy day, it is easy to lose sight of what is actually in your hands"
@@ -171,14 +171,14 @@
 
                     {/* Interactive Head Container */}
                     <div 
-                        className="relative w-full max-w-3xl aspect-[16/9] bg-[#0a111e] rounded-3xl overflow-hidden shadow-2xl border border-white/5 flex items-center justify-center group cursor-pointer"
+                        className="relative w-full max-w-3xl aspect-[16/9] bg-[#1c2e4a] rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex items-center justify-center group cursor-pointer"
                         onClick={toggleAudio}
                     >
                         {/* Playback Background Effects */}
                         <div className={`absolute inset-0 bg-blue-500/10 transition-opacity duration-1000 ${isPlaying ? 'opacity-100' : 'opacity-0'}`} />
                         <div className={`absolute w-1/3 h-1/2 bg-blue-400/20 blur-[100px] rounded-full animate-glow-pulse left-1/3 top-1/4 ${isPlaying ? 'block' : 'hidden'}`} />
 
-                        <div className="relative w-4/5 h-4/5 flex items-center justify-center z-10">
+                        <div className="relative w-[95%] h-[95%] flex items-center justify-center z-10">
                             {/* Loading State */}
                             {!imageLoaded && !imageError && (
                                 <div className="absolute inset-0 flex items-center justify-center">
